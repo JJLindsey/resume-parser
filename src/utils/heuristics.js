@@ -1,4 +1,4 @@
-import skillsLexicon from '../data/skills.json'
+import skillsLexicon from '../data/skills.json' assert {type: 'json'}
 
 export function extractResumeFields(text) {
   const lines = text.split('\n').map(l => l.trim()).filter(Boolean) 
@@ -32,7 +32,7 @@ function findName(lines) {
 }
 
 function findEducation(lines) {
-  const keywords = ['bachelor', 'master', 'phd', 'university', 'college', 'degree', 'school']
+  const keywords = ['bachelor', 'master', 'phd', 'university', 'college', 'degree', 'school', 'ba', 'bs', 'ma', 'ms', 'graduated']
   const candidates = []
 
   lines.forEach((line, i) => {

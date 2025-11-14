@@ -1,5 +1,7 @@
-import React, {useState} from  'react '
-import { extractResumeFields } from  '../utils/heuristics '
+import React, {useState} from 'react'
+import { extractResumeFields } from '../utils/heuristics'
+import { Box, Paper, Typography, TextField, Button, CircularProgress } from '@mui/material'
+import ResultViewer from './ResultViewer'
 
 export default function ExtractorUI() {
     const [resumeText, setResumeText] = useState('')
@@ -10,7 +12,7 @@ export default function ExtractorUI() {
         setLoading(true)
         setTimeout(() => {
             const parsed = extractResumeFields(resumeText)
-            setResults([parsed])
+            setResults(parsed)
             setLoading(false)
         }, 500)
     }
@@ -22,21 +24,20 @@ export default function ExtractorUI() {
 
     return (
         <Box>
-            <Typography variant= 'h4 ' gutterBottom>
+            <Typography variant= 'h4' gutterBottom>
                 Resume Field Extractor
             </Typography>
             {!results && (
                 <Paper sx={{ p: 3 }}>
-                <Typography variant= 'body1 ' sx={{ mb: 2 }}>
+                <Typography variant= 'body1' sx={{ mb: 2 }}>
                     Paste résumé text below and click <b>Extract Fields</b>.
                 </Typography>
-
                 <TextField
                     multiline
                     minRows={10}
                     fullWidth
-                    label= 'Paste Résumé Here '
-                    variant= 'outlined '
+                    label= 'Paste Résumé Here'
+                    variant= 'outlined'
                     value={resumeText}
                     onChange={(e) => setResumeText(e.target.value)}
                     sx={{ mb: 2 }}
@@ -44,20 +45,19 @@ export default function ExtractorUI() {
 
                 <Box sx={{ display: 'flex', gap: 2 }}>
                     <Button
-                    variant= 'contained '
+                    variant= 'contained'
                     onClick={handleExtract}
                     disabled={!resumeText || loading}
                     >
                     {loading ? <CircularProgress size={24} /> : 'Extract Fields'}
                     </Button>
 
-                    <Button variant= 'outlined ' onClick={handleReset}>
+                    <Button variant= 'outlined' onClick={handleReset}>
                     Reset
                     </Button>
                 </Box>
                 </Paper>
             )}
-
             {results && (
                 <ResultViewer results={results} onBack={handleReset} />
             )}
