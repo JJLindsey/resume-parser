@@ -7,7 +7,7 @@ export function extractResumeFields(text, jdKeywords = []) {
     education: findEducation(lines),
     experience: findExperience(lines, jdKeywords),
     location: findLocation(lines),
-    skills: findSkills(text),
+    //skills: findSkills(text),
   } 
   return results 
 }
@@ -176,13 +176,13 @@ function findLocation(lines) {
     : { value: null, confidence: 0.3, rule: 'No city found' } 
 }
 
-function findSkills(text) {
-  const lower = text.toLowerCase() 
-  const found = skillsLexicon.filter(skill => lower.includes(skill.toLowerCase())) 
-  const confidence = found.length > 5 ? 0.9 : found.length > 0 ? 0.6 : 0.2 
-  return {
-    value: found,
-    confidence,
-    rule: 'Lexicon keyword match',
-  } 
-}
+// function findSkills(text) {
+//   const lower = text.toLowerCase() 
+//   const found = skillsLexicon.filter(skill => lower.includes(skill.toLowerCase())) 
+//   const confidence = found.length > 5 ? 0.9 : found.length > 0 ? 0.6 : 0.2 
+//   return {
+//     value: found,
+//     confidence,
+//     rule: 'Lexicon keyword match',
+//   } 
+// }
