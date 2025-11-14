@@ -31,31 +31,102 @@ function findName(lines) {
   }
 }
 
-function findEducation(lines) {
-  const keywords = ['bachelor', 'master', 'phd', 'university', 'college', 'degree', 'school', 'ba', 'bs', 'ma', 'ms', 'graduated']
-  const candidates = []
+export function findEducation(lines) {
+  // Normalize lines for PDF artifacts
+  const normalized = lines.map(line =>
+    line
+      .normalize("NFKD")
+      .replace(/[^\x00-\x7F]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+  );
 
-  lines.forEach((line, i) => {
-    const lower = line.toLowerCase()
-    const keywordCount = keywords.filter(k => lower.includes(k)).length
-    const positionalBoost = i < 10 ? 0.2 : 0
-    const score = keywordCount * 0.3 + positionalBoost
-    if (score > 0.3) candidates.push({ line, score })
-  })
+  // Degree and school patterns
+  const degreeRegex = /\b(ba|bs|bfa|ma|ms|mba|mfa|phd|jd|md|associate|bachelor|master|doctor|certificate|certification)\b/i;
+  const schoolRegex =
+    /\b(university|college|institute|academy|polytechnic|school|state|institute of technology)\b/i;
 
-  if (candidates.length === 0)
-    return { value: null, confidence: 0.2, rule: 'No education cues found' }
+  // Expand lines by splitting on separators
+  const expanded = normalized.flatMap(line =>
+    line.split(/[–—\-•|]/).map(s => s.trim()).filter(Boolean)
+  );
 
-  const best = candidates.sort((a, b) => b.score - a.score)[0]
-  return {
-    value: best.line,
-    confidence: Math.min(best.score + 0.3, 1),
-    rule: 'Contains education-related words + early position',
+  const candidates = expanded.map((line, i) => {
+    const text = line.toLowerCase();
+    return {
+      line,
+      index: i,
+      hasDegree: degreeRegex.test(text),
+      hasSchool: schoolRegex.test(text),
+      score:
+        (degreeRegex.test(text) ? 0.6 : 0) +
+        (schoolRegex.test(text) ? 0.6 : 0) +
+        (i < 15 ? 0.2 : 0) // early appearance
+    };
+  }).filter(c => c.hasDegree || c.hasSchool);
+
+  if (!candidates.length) {
+    return { value: [], confidence: 0.2, rule: "No education cues found" };
   }
+
+  const structured = [];
+
+  // Merge lines: degree + school in same or adjacent lines
+  for (let i = 0; i < candidates.length; i++) {
+    const curr = candidates[i];
+    const next = candidates[i + 1];
+
+    let school = null;
+    let degree = null;
+    let field = null;
+
+    // Determine which part is degree / school
+    if (curr.hasSchool) school = curr.line;
+    if (curr.hasDegree) degree = curr.line;
+
+    if (
+      next &&
+      Math.abs(curr.index - next.index) === 1 &&
+      ((curr.hasDegree && next.hasSchool) || (curr.hasSchool && next.hasDegree))
+    ) {
+      if (!school && next.hasSchool) school = next.line;
+      if (!degree && next.hasDegree) degree = next.line;
+      i++; // skip next line
+    }
+
+    // Extract field from degree line if possible
+    if (degree) {
+      // Remove degree acronym from start
+      const match = degree.match(/\b(ba|bs|bfa|ma|ms|mba|mfa|phd|jd|md|associate|bachelor|master|doctor|certificate|certification)\b/i);
+      if (match) {
+        field = degree.replace(match[0], '').trim().replace(/^[:,\-–—]\s*/, '');
+        degree = match[0].toUpperCase();
+      } else {
+        field = '';
+      }
+    }
+
+    // Only keep if both school and degree exist
+    if (school && degree) {
+      structured.push({
+        school,
+        degree,
+        field,
+        lineIndex: curr.index,
+        confidence: Math.min(curr.score, 1)
+      });
+    }
+  }
+
+  return {
+    value: structured,
+    confidence: structured.length > 0 ? structured[0].confidence : 0.2,
+    rule: "Detected structured degree + school entries with multi-line merge"
+  };
 }
 
 function findExperience(lines) {
-   const jobCues = ['experience', 'intern', 'manager', 'developer', 'engineer', 'company', 'worked']
+  const jobCues = ['experience', 'intern', 'manager', 'developer', 'engineer', 'company', 'worked', 'designer', 'UI', 'UX']
   const timeCues = ['present', 'responsible', 'years', 'months', 'previous']
   const candidates = []
 
