@@ -1,7 +1,7 @@
-import { Paper, TextField } from "@mui/material"
+import { useState } from "react"
+import { Paper, TextField, Button } from "@mui/material"
 
-export default function setJobDescription(){
-    const [jobDescription, setJobDescription] = useState('')
+export default function JobDescriptionInput({value, onChange, onExtract}) {
 
     return (
         <>
@@ -11,9 +11,12 @@ export default function setJobDescription(){
                     minRows={5}
                     fullWidth
                     placeholder="Paste job description here..."
-                    value={jobDescription}
-                    onChange={e => setJobDescription(e.target.value)}
+                    value={value}
+                    onChange={e => onChange(e.target.value)}
                 />
+                 <Button variant='contained' onClick={onExtract} disabled={!value}>
+                    Analyze Job Description
+                </Button>
             </Paper>
         </>
     )

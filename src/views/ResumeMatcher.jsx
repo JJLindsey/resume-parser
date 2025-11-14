@@ -1,4 +1,7 @@
+import { useState } from "react"
 import ExtractorUI from "../components/ExtractorUI"
+import JobDescriptionInput from "../components/JobDescriptionInput"
+import ResultViewer from "../components/ResultViewer"
 import { extractResumeFields } from "../utils/heuristics"
 
 export default function ResumeMatcher() {
@@ -14,13 +17,14 @@ export default function ResumeMatcher() {
             .filter(w => w.length > 2)
         
         const parsed = extractResumeFields(resumeText, jdKeywords)
-        setMatchingResults(parsed)
+        setResults(parsed)
     }
     return (
         <>
-            <JobDescritpionInput 
+            <JobDescriptionInput 
                 value={jobDescription}
                 onChange={setJobDescription}
+                onExtract={handleExtract}
             />
             <ExtractorUI 
                 resumeText={resumeText}
