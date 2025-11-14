@@ -1,11 +1,11 @@
 import skillsLexicon from '../data/skills.json' assert {type: 'json'}
 
-export function extractResumeFields(text) {
+export function extractResumeFields(text, jdKeywords = []) {
   const lines = text.split('\n').map(l => l.trim()).filter(Boolean) 
   const results = {
     name: findName(lines),
     education: findEducation(lines),
-    experience: findExperience(lines),
+    experience: findExperience(lines, jdKeywords),
     location: findLocation(lines),
     skills: findSkills(text),
   } 
@@ -125,28 +125,46 @@ export function findEducation(lines) {
   };
 }
 
-function findExperience(lines) {
-  const jobCues = ['experience', 'intern', 'manager', 'developer', 'engineer', 'company', 'worked', 'designer', 'UI', 'UX']
-  const timeCues = ['present', 'responsible', 'years', 'months', 'previous']
-  const candidates = []
+function findExperience(lines, jdKeywords = []) {
+  //const jobCues = ['experience', 'intern', 'manager', 'developer', 'engineer', 'company', 'worked', 'designer', 'UI', 'UX']
+  //const timeCues = ['present', 'responsible', 'years', 'months', 'previous']
+  //const candidates = []
+  const experience = []
+  let i = 0
 
-  lines.forEach((line, i) => {
-    const lower = line.toLowerCase()
-    const score =
-      (jobCues.filter(k => lower.includes(k)).length * 0.3) +
-      (timeCues.filter(k => lower.includes(k)).length * 0.2) +
-      (i < lines.length * 0.7 ? 0.1 : 0)
-    if (score > 0.4) candidates.push({ line, score })
-  })
+  while (i < lines.length) {
+    const line = lines[i].trim()
+    const headerRegex = /(.*)\s+\|\s+(.*)\s+(\d{4})\s*-\s*(\d{4}|Present)/i
+    const match = line.match(headerRegex)
+    if (match) {
+      const [_, title, company, start, end] = match
+      const bullets = []
+      i++;
+      while (i < lines.length && lines[i].trim() !== "") {
+        bullets.push(lines[i].replace(/^[-•\s]+/, '').trim( ))
+        i++;
+      }
 
-  if (candidates.length === 0)
-    return { value: null, confidence: 0.2, rule: 'No job-related cues found' }
+   // Keyword match against job description
+      let matchCount = 0;
+      bullets.forEach(b => {
+        jdKeywords.forEach(k => {
+          if (b.toLowerCase().includes(k.toLowerCase())) matchCount++;
+        });
+      });
 
-  const best = candidates.sort((a, b) => b.score - a.score)[0]
+      const confidence = jdKeywords.length > 0 ? Math.min(matchCount / jdKeywords.length, 1) : 0.8;
+
+      experience.push({ title, company, start, end, bullets, confidence });
+    } else {
+      i++;
+    }
+  }
+
   return {
-    value: best.line,
-    confidence: Math.min(best.score + 0.2, 1),
-    rule: 'Contains job-related cues and mid-position',
+    value: experience,
+    confidence: experience.length > 0 ? experience[0].confidence : 0.2,
+    rule: "Parsed jobs and matched bullets against job description"
   }
 }
 

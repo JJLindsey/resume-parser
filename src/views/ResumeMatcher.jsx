@@ -31,9 +31,6 @@ export default function ResumeMatcher() {
                 setResumeText={setResumeText}
                 onExtract={handleExtract}
             />
-            {results && (
-                <ResultViewer results={results} onBack={() => setResults(null)} />
-            )}
         </>
     )
 }
