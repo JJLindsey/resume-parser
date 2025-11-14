@@ -18,6 +18,10 @@ export default function ResumeMatcher() {
     }
     return (
         <>
+            <JobDescritpionInput 
+                value={jobDescription}
+                onChange={setJobDescription}
+            />
             <ExtractorUI 
                 resumeText={resumeText}
                 setResumeText={setResumeText}
