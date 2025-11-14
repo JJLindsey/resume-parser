@@ -9,6 +9,7 @@ export function extractSkills({ resume, jd = "", mode = "Hybrid", lexicon = [] }
 
     if (mode === "Lexicon only" && !inResume) return null;
     if (mode === "JD only" && !inJD) return null;
+    if (mode === "Hybrid" && !inResume && !inJD) return null;
 
     return {
       skill: skill.skill,
@@ -18,14 +19,31 @@ export function extractSkills({ resume, jd = "", mode = "Hybrid", lexicon = [] }
     };
   }).filter(Boolean);
 
-  const resumeOnly = []; // Skills in resume but not in lexicon or JD
+  const totalFound = results.length
+  const inBothResumeAndJD = results.filter(r => r.inResume && r.inJD).length
+  const inResumeOnly = results.filter(r => r.inResume && !r.inJD).length
+  const inJDOnly = results.filter(r => !r.inResume && r.inJD).length
+
+  const jdSkillsCount = results.filter(r => r.inJD).length
+  const matchPercent = jdSkillsCount > 0 
+    ? Math.round((inBothResumeAndJD / jdSkillsCount) * 100)
+    : 0
+
+  //const resumeOnly = []; // Skills in resume but not in lexicon or JD
 //   resumeText.split(/\W+/).forEach(word => {
 //     if (!results.find(r => r.skill.toLowerCase() === word) && word.length > 2) {
 //       resumeOnly.push({ name: word, category: "Other", source: "auto", match: 0.4 });
 //     }
 //   });
 
-  const matchPercent = Math.round((results.filter(r => r.match >= 0.8).length / lexicon.length) * 100);
-
-  return { results: [...results, ...resumeOnly], matchPercent };
+  return { 
+    results,
+    matchPercent,
+    stats: {
+        total: totalFound,
+        inBothResumeAndJD,
+        inResumeOnly,
+        inJDOnly
+    } 
+}
 }
