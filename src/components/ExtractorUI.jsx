@@ -8,20 +8,6 @@ export default function ExtractorUI({resumeText, setResumeText, onExtract, disab
     const [loading, setLoading] = useState(false)
     const [results, setResults] = useState(null)
 
-    // const handleExtract = () => {
-    //     setLoading(true)
-    //     setTimeout(() => {
-    //         const parsed = extractResumeFields(resumeText)
-    //         setResults(parsed)
-    //         setLoading(false)
-    //     }, 500)
-    // }
-
-    // const handleReset = () => {
-    //     setResumeText('')
-    //     setResults(null)
-    // }
-
     return (
         <Box>
             <Typography variant= 'h4' gutterBottom>
@@ -46,7 +32,13 @@ export default function ExtractorUI({resumeText, setResumeText, onExtract, disab
                 <Box sx={{ display: 'flex', gap: 2 }}>
                     <Button
                     variant= 'contained'
-                    onClick={onExtract}
+                    //onClick={onExtract}
+                    onClick={() => {
+                            setLoading(true);
+                            const extracted = onExtract()
+                            setResults(extracted)
+                            setLoading(false)
+                        }}
                     disabled={!resumeText || loading}
                     >
                     {loading ? <CircularProgress size={24} /> : 'Extract Fields'}
@@ -59,7 +51,7 @@ export default function ExtractorUI({resumeText, setResumeText, onExtract, disab
                 </Paper>
             )}
             {results && (
-                <ResultViewer results={results} onBack={handleReset} />
+                <ResultViewer results={results} onBack={onReset} />
             )}
         </Box>
     )

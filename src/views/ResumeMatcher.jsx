@@ -69,14 +69,13 @@ export default function ResumeMatcher() {
                             setHeuristicsResults(null)
                         }}
                     >
-                        <MenuItem value="JD only">Job Description Only</MenuItem>
+                        <MenuItem value="JD only">Analyze Resume for Job Description</MenuItem>
                         <MenuItem value="Lexicon only">Skills Match Only</MenuItem>
-                        <MenuItem value="Hybrid">Hybrid</MenuItem>
+                        {/* <MenuItem value="Hybrid">Hybrid</MenuItem> */}
                     </Select>
                 </FormControl>
                 <Typography variant="caption" display="block" sx={{ mt: 1, color: 'text.secondary' }}>
                     {mode === "JD only" && "Only skills from the job description will be analyzed"}
-                    {mode === "Lexicon only" && "Skills will be matched against a predefined skills database (no JD needed)"}
                     {mode === "Hybrid" && "Skills from both job description and skills database will be analyzed"}
                 </Typography>
             </Paper>
@@ -101,8 +100,8 @@ export default function ResumeMatcher() {
                 </>
             )}
             {mode === "Lexicon only" && !skillsResults && (
-                <Alert severity="info" sx={{ mb: 3 }}>
-                    📘 Lexicon Mode: Skills will be matched against the predefined skills database. Paste your resume below to continue.
+                <Alert severity="info" variant='filled' sx={{ mb: 3 }}>
+                    Lexicon Mode: Skills will be matched against the predefined skills database. Paste your resume below to continue.
                 </Alert>
             )}
             {canProceedToResume && (

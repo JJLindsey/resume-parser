@@ -118,14 +118,6 @@ export default function SkillsResults({ skillsResults, mode, lexiconLength }) {
                                         {skill.inResume && skill.inJD ? "Match" : 
                                         skill.inResume ? "Resume" : "Missing"}
                                 </Typography>
-                                {/* <Chip 
-                                    label={skill.inResume && skill.inJD ? "Match" : 
-                                        skill.inResume ? "Resume" : "Missing"}
-                                    size="small"
-                                    color={skill.inJD && skill.inResume ? "success" : 
-                                        skill.inResume ? "info" : "warning"}
-                                        variant='outlined'
-                                /> */}
                             </Box>
                         </Paper>
                     </Grid>
