@@ -3,29 +3,29 @@ import { extractResumeFields } from '../utils/heuristics'
 import { Box, Paper, Typography, TextField, Button, CircularProgress } from '@mui/material'
 import ResultViewer from './ResultViewer'
 
-export default function ExtractorUI() {
-    const [resumeText, setResumeText] = useState('')
+export default function ExtractorUI({resumeText, setResumeText, onExtract, disabled, onReset}) {
+    //const [resumeText, setResumeText] = useState('')
     const [loading, setLoading] = useState(false)
     const [results, setResults] = useState(null)
 
-    const handleExtract = () => {
-        setLoading(true)
-        setTimeout(() => {
-            const parsed = extractResumeFields(resumeText)
-            setResults(parsed)
-            setLoading(false)
-        }, 500)
-    }
+    // const handleExtract = () => {
+    //     setLoading(true)
+    //     setTimeout(() => {
+    //         const parsed = extractResumeFields(resumeText)
+    //         setResults(parsed)
+    //         setLoading(false)
+    //     }, 500)
+    // }
 
-    const handleReset = () => {
-        setResumeText('')
-        setResults(null)
-    }
+    // const handleReset = () => {
+    //     setResumeText('')
+    //     setResults(null)
+    // }
 
     return (
         <Box>
             <Typography variant= 'h4' gutterBottom>
-                Resume Field Extractor
+                Resume Field Extractor - ExtractorUI
             </Typography>
             {!results && (
                 <Paper sx={{ p: 3 }}>
@@ -46,13 +46,13 @@ export default function ExtractorUI() {
                 <Box sx={{ display: 'flex', gap: 2 }}>
                     <Button
                     variant= 'contained'
-                    onClick={handleExtract}
+                    onClick={onExtract}
                     disabled={!resumeText || loading}
                     >
                     {loading ? <CircularProgress size={24} /> : 'Extract Fields'}
                     </Button>
 
-                    <Button variant= 'outlined' onClick={handleReset}>
+                    <Button variant= 'outlined' onClick={onReset}>
                     Reset
                     </Button>
                 </Box>
